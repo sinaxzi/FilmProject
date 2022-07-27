@@ -16,7 +16,7 @@ class RegisterController extends Controller
    }
 
    public function store(Request $request){
-
+    // dd($request->all());
        $fields = $request->validate([
            'name' => 'required|min:4',
            'email' => ['required',Rule::unique('users','email'),'email'],
@@ -26,6 +26,7 @@ class RegisterController extends Controller
        
 
        $fields['password'] = Hash::make($fields['password']);
+       $fields['IsAdmin'] = $request->filled('IsAdmin') ? 1 : 0;
 
        $user = User::create($fields);
 

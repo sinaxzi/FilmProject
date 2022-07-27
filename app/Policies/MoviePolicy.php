@@ -22,6 +22,6 @@ class MoviePolicy
 
     public function update(User $user, Movie $movie)
     {
-        
+        return ($user->id === $movie->user_id) || ($user->IsAdmin === 1) ;
     }
 }

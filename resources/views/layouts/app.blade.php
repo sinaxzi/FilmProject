@@ -39,11 +39,7 @@
                 
                 @auth
 
-                @if(auth()->user()->userHasRole('admin'))
-                        <li>
-                            <a href="{{ route('admin') }}" class="hover:text-laravel">
-                                Admin</a>
-                        </li>
+                @if(auth()->user()->IsAdmin)
         
                         <li>
                             <a href="{{ route('genre.create') }}" class="hover:text-laravel">

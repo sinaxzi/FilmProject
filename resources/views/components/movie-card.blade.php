@@ -16,6 +16,23 @@
             <div class="text-xl font-bold mb-4">Director: {{ $movie->director }}</div>
             <div class="text-xl font-bold mb-4">Actors: {{ $movie->actors }}</div>
             <div class="text-xl font-bold mb-4">Summary: {{ $movie->plot }}</div>
+            <div><a href="{{ route('movie.edit',$movie->id) }}" class="text-blue-400 px-6 py-2 rounded-xl">
+                    <i
+                        class="fa-solid fa-pen-to-square"
+                    ></i> Edit</a
+            ></div>
+            
+            <div><form action="{{ route('movie.delete',$movie) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button class="text-red-600">
+
+                    <i
+                        class="fa-solid fa-trash-can"
+                    ></i> Delete
+                </button>
+            </form></div>
+
 
         </div>
     </div>
