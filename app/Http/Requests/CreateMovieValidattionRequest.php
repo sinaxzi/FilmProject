@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SearchIndexRequest extends FormRequest
+class CreateMovieValidattionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +23,13 @@ class SearchIndexRequest extends FormRequest
      */
     public function rules()
     {
-        // dd($this->request);
         return [
-            'search' => 'nullable|string|max:100',
-            'minYear' => 'nullable|required_with:maxYear|digits:4',
-            'maxYear' => 'nullable|required_with:minYear|digits:4',
+                'title' => 'required|min:6',
+                'year' => 'required|digits:4',
+                'runtime' => 'required|integer',
+                'director' => 'required|min:6',
+                'actors' => 'required|min:6',
+                'plot' => 'required|min:6',
         ];
     }
 }

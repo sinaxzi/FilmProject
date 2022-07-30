@@ -1,5 +1,4 @@
 <form action="{{ route('home')}}" method="GET">
-    @csrf
     <div class="relative border-2 border-gray-100 m-4 rounded-lg">
         <div class="absolute top-4 left-3">
             <i
@@ -12,7 +11,6 @@
                 name="search"
                 class="h-14 w-full pl-10 pr-20 rounded-lg z-0 focus:shadow focus:outline-none"
                 placeholder="Search Movies title..."
-                value="12341"
             />
             @error('search')
                 <div class="text-red-500 mt-1 text-xs">{{ $message }}</div>
@@ -22,8 +20,15 @@
         <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Genre</h3>
         <div class="flex">
             @foreach ($genres->unique('title') as $genre)
+            @php
+                $checked = [];
+                if(isset($_GET['genre'])){
+                    $checked = $_GET['genre'];
+                }
+            @endphp
             <div class="flex items-center mr-4">
-                <input id="{{ $genre->title }}" type="checkbox" name="genre[]" value={{ $genre->title }} class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                <input id="{{ $genre->title }}" type="checkbox" name="genre[]"   value="{{ $genre->title }}" @if(in_array($genre->title,$checked)) checked @endif
+                  class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
                 <label for="{{ $genre->title }}" class="py-3 ml-2 w-full text-sm font-medium text-gray-900 dark:text-gray-300">{{ $genre->title }}</label>
             </div>
             

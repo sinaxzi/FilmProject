@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\CreateMovie;
 use App\Http\Requests\SearchIndexRequest;
+use App\Http\Requests\CreateMovieValidattionRequest;
 use App\Models\Movie;
 use App\Models\User;
 use App\Models\Genre;
@@ -13,66 +14,48 @@ use Illuminate\Validation\Rule;
 class MovieController extends Controller
 {
     public function index(SearchIndexRequest $request){
+        $request->validated();
         $query = Movie::query();
-        // dump($request);
+
         $query->when($request->search,function($query,$search){
             
-            $query->where('title', 'LIKE', "%{$search}%");
+            $query->where('title', 'LIKE', "%".$search."%");
         });
-        if($request->has('minYear') && $request->has('maxYear') ){
-            $query->whereBetween('year', [$request->minYear, $request->maxYear]);
+
+        if(is_null($request->minYear) && is_null($request->maxYear)){
+            $request->minYear = 0;
+
+            $request->maxYear = 10000;
         }
-        // $query->when($request->genre,function($query,$genres){
-        //     foreach ($genres as $genre) {
-        //         $query->whereHas('genres', function($query,$q) {
-        //             $q->whereTitle($genre);
-        //         });
-        //     }
-        // });
+        $query->whereBetween('year', [$request->minYear, $request->maxYear]);
 
-        $genres = Genre::all();
-        
-        // if ($request->has('search') || $request->has('minYear') || $request->has('maxYear') || $request->has('genre')) {
 
-        //     if (is_null($request->minYear)) $request->merge([
-        //         'minYear' => '0'
-        //     ]);
-        //     if (is_null($request->maxYear)) $request->merge([
-        //         'maxYear' => '10000'
-        //     ]);
-            
-        //     $movies = Movie::latest()->Filter($request)->paginate(8);
-        //     return view('Home.index', compact('movies', 'genres'));
-        // }
-
-        $movies = $query->latest()->paginate(8);
-        // $movies = Movie::all()->paginate(8);
+        $query->when($request->genre,function($query,$genres){
+            foreach ($genres as $genre) {
+                $query->whereHas('genres', function($query) use($genre) {
+                    $query->whereTitle($genre);
+                });
+            }
+        });
+        $movies = $query->latest()->paginate(8)->appends($request->query());
         return view('Home.index',['movies'=>$movies,'genres'=>Genre::all()]);
 
     }
 
     public function show(Movie $movie){
 
-        return view('movies.show',['movie'=> $movie]);
+        return view('movies.show',['movie'=> $movie,'genres'=>Genre::all()]);
         
     }
 
-    public function create(Movie $movie){
-
-        return view('movies.create',['movie'=>$movie,'genres'=>Genre::all()]);
+    public function create(){
+        return view('movies.create',['genres'=>Genre::all()]);
         
     }
 
-    public function store(Request $request){
-
-        $fields = $request->validate([
-            'title' => 'required|min:6',
-            'year' => 'required|digits:4',
-            'runtime' => 'required|integer',
-            'director' => 'required|min:6',
-            'actors' => 'required|min:6',
-            'plot' => 'required|min:6',
-        ]);
+    public function store(CreateMovieValidattionRequest $request){
+        
+        $fields = $request->validated();
 
         if($request->hasFile('posterUrl')){
             $fields['posterUrl'] = $request->file('posterUrl')->store('storage');
@@ -81,10 +64,6 @@ class MovieController extends Controller
         
         $user = $request->user();
         $movie = $user->movies()->create($fields);
-
-        // $id = $request->id;
-
-        // $movie = Movie::all()->where('id',$id)->first();
 
         $genres = Genre::all();
 
@@ -130,7 +109,6 @@ class MovieController extends Controller
 
         $admin_users = User::all()->where('IsAdmin');
 
-        // event(new CreateMovie($users->email));
         event(new CreateMovie(auth()->user(),$movie,$admin_users));
         
         
@@ -158,12 +136,4 @@ class MovieController extends Controller
         return view('movies.manage',['movies' => $movies]);
 
     }
-
-    // public function scopeFilter($query , array $filters){
-        
-    //     if ($filters['search'] ?? false){
-    //         $query->where('title','like','%' . request('search') . '%')
-    //               ->orWhere($movie->genre,'like','%' . request('search') . '%');
-    //     }
-    // }
 }
