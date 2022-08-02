@@ -21,46 +21,36 @@ use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/',[MovieController::class,'index'])->name('home');
 
-
-
-
 Route::get('/register',[RegisterController::class,'index'])->name('register');
 Route::post('/register',[RegisterController::class,'store']);
 
 Route::get('/login',[LoginController::class,'index'])->name('login');
 Route::post('login',[LoginController::class,'store']);
 
+Route::post('/logout',[LogoutController::class,'store'])->name('logout')->middleware('auth');
 
-Route::middleware(['role','auth'])->group(function(){
-    Route::delete('/movies/{movie}/delete',[MovieController::class,'destroy'])->name('movie.delete');
+Route::get('/user/{user}/manage',[MovieController::class,'manage'])->name('movie.manage')->middleware('auth');
 
-    Route::get('genres/create',[GenreController::class,'create'])->name('genre.create');
+Route::prefix('movies')->group(function(){
 
-    Route::post('/genres',[GenreController::class,'store'])->name('genre.store');
+    Route::get('/create',[MovieController::class,'create'])->name('movie.create')->middleware('auth');
 
+    Route::post('',[MovieController::class,'store'])->name('movie.store')->middleware('auth');
 
-});
+    Route::get('/{movie}/edit',[MovieController::class,'edit'])->name('movie.edit')->middleware('auth');
 
-Route::middleware(['auth'])->group(function(){
-    // dd('test');
-    Route::get('/movies/create',[MovieController::class,'create'])->name('movie.create');
+    Route::patch('/{movie}/update',[MovieController::class,'update'])->name('movie.update')->middleware('auth')->can('update','movie');
 
-    Route::post('/movies',[MovieController::class,'store'])->name('movie.store');
+    Route::delete('/{movie}/delete',[MovieController::class,'destroy'])->name('movie.delete')->middleware(['auth','role']);
 
-    Route::post('/logout',[LogoutController::class,'store'])->name('logout');
-
-
-    Route::get('/user/{user}/manage',[MovieController::class,'manage'])->name('movie.manage');
-
-
-    Route::get('/movies/{movie}/edit',[MovieController::class,'edit'])->name('movie.edit');
-
-    Route::patch('/movies/{movie}/update',[MovieController::class,'update'])->name('movie.update');
-
-
+    Route::get('/{movie}',[MovieController::class,'show'])->name('movie.show');
 
 });
 
-Route::get('/movies/{movie}',[MovieController::class,'show'])->name('movie.show');
+Route::prefix('genres')->group(function(){
+    
+    Route::get('/create',[GenreController::class,'create'])->name('genre.create')->middleware(['auth','role']);
 
+    Route::post('',[GenreController::class,'store'])->name('genre.store')->middleware(['auth','role']);
 
+});

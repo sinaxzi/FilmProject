@@ -9,7 +9,9 @@ use App\Models\Movie;
 use App\Models\User;
 use App\Models\Genre;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\URL;
 
 class MovieController extends Controller
 {
@@ -58,7 +60,10 @@ class MovieController extends Controller
         $fields = $request->validated();
 
         if($request->hasFile('posterUrl')){
-            $fields['posterUrl'] = $request->file('posterUrl')->store('storage');
+            $file = $request->file('posterUrl');
+            $name = 'public/' . $file->hashName();
+            Storage::disk('local')->put($name,file_get_contents($file));
+            $fields['posterUrl'] = Storage::disk('local')->url($name);
         }
 
         
@@ -87,23 +92,19 @@ class MovieController extends Controller
         return view('movies.edit',['movie'=>$movie]);
     }
 
-    public function update(Movie $movie){
+    public function update(CreateMovieValidattionRequest $request,Movie $movie){
 
-        $this->authorize('update',$movie);
+        // $this->authorize('update',$movie);
 
-        $fields = request()->validate([
-            'title' => 'required|min:6',
-            'year' => 'required|digits:4',
-            'runtime' => 'required|integer',
-            'director' => 'required|min:6',
-            'actors' => 'required|min:6',
-            'plot' => 'required|min:6',
-        ]);
+        $fields = $request->validated();
 
-
-        if(request()->hasFile('posterUrl')){
-            $fields['posterUrl'] = request()->file('posterUrl')->store('posterUrls','public');
+        if($request->hasFile('posterUrl')){
+            $file = $request->file('posterUrl');
+            $name = 'public/' . $file->hashName();
+            Storage::disk('local')->put($name,file_get_contents($file));
+            $fields['posterUrl'] = Storage::disk('local')->url($name);
         }
+
 
         $movie->update($fields);
 
@@ -124,7 +125,8 @@ class MovieController extends Controller
 
         $movie->delete();
 
-        return redirect(route('movie.manage',auth()->user()))->with('messageRed','Movie deleted successfully');
+
+        return back()->with('messageRed','Movie deleted successfully');
 
     }
 

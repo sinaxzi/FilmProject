@@ -9,6 +9,7 @@
             <input
                 type="text"
                 name="search"
+                value="{{$_GET['search']?? ''}}"
                 class="h-14 w-full pl-10 pr-20 rounded-lg z-0 focus:shadow focus:outline-none"
                 placeholder="Search Movies title..."
             />
@@ -36,13 +37,13 @@
         </div>
         <div>
             year from : <div >
-                            <input class="border-black-400" type="number" name="minYear" id="minYear">
+                            <input class="border-black-400" type="number" name="minYear" id="minYear" value={{$_GET['minYear']?? ''}}>
                             @error('minYear')
                                 <div class="text-red-500 mt-1 text-xs">{{ $message }}</div>
                             @enderror
                         </div> to : 
                         <div>
-                            <input type="number" name="maxYear" id="maxYear" >
+                            <input type="number" name="maxYear" id="maxYear" value={{$_GET['maxYear']?? ''}} >
                             @error('maxYear')
                                 <div class="text-red-500 mt-1 text-xs">{{ $message }}</div>
                             @enderror

@@ -23,11 +23,11 @@ class SearchIndexRequest extends FormRequest
      */
     public function rules()
     {
-        // dd($this->request);
+        $minYear = request('minYear');
         return [
             'search' => 'nullable|string|max:100',
             'minYear' => 'nullable|required_with:maxYear|digits:4',
-            'maxYear' => 'nullable|required_with:minYear|digits:4',
+            'maxYear' => "nullable|required_with:minYear|digits:4|numeric|min:$minYear",
         ];
     }
 }

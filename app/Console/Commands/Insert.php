@@ -16,7 +16,7 @@ class Insert extends Command
      *
      * @var string
      */
-    protected $signature = 'Insert:Json';
+    protected $signature = 'Insert:json';
 
     /**
      * The console command description.
@@ -32,7 +32,7 @@ class Insert extends Command
      */
     public function handle()
     {
-        $file = file_get_contents(storage_path('app/public/database/db.json' ));
+        $file = file_get_contents(storage_path('app/private/database/db.json' ));
         $records = json_decode($file,true);
 
         foreach ($records['genres'] as $record) {
@@ -42,13 +42,13 @@ class Insert extends Command
         }
 
         $genres = Genre::all();
-
-
+        $movies = Movie::all();
+        $users = User::all();
         foreach ($records['movies'] as $record) {
 
-            $user = User::all()->where('id',rand(1,11))->first();
-            $movie = Movie::create([
-                'user_id' => $user['id'],
+            $user = $users->where('id',rand(1,10))->first();
+
+            $movie = $user->movies()->create([
                 'title' => $record["title"],
                 'actors' => $record["actors"],
                 'plot' => $record["plot"],

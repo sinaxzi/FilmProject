@@ -11,7 +11,7 @@
             >
                 <img
                     class="w-48 mr-6 mb-6"
-                    src={{$movie->posterUrl ? asset('storage/' . $movie->posterUrl) : asset('images/no-image.png')}}
+                    src={{$movie->posterUrl ?: asset('images/no-image.png')}}
                     alt=""
                 />
 
